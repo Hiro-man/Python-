@@ -31,3 +31,10 @@ wx.mediaによるオーディオファイル再生が中々上手く実装でき
 ## 参考リンク
 <!-- * <a href="" target="_blank"></a> -->
 * <a href="https://wxpython.org/Phoenix/docs/html/wx.html.1moduleindex.html" target="_blank">wx.html</a>
+* <a href="https://wxpython.org/Phoenix/docs/html/wx.aui.AuiNotebook.html" target="_blank">wx.aui.AuiNotebook</a>
+* <a href="https://www.python-izm.com/gui/" target="_blank">GUI  |  Python-izm</a>
+
+* <a href="https://www.tagindex.com/html_tag/elements/" target="_blank">HTMLタグ/HTML要素一覧 - TAG index</a>
+* <a href="https://water2litter.net/rum/post/python_unicodedata_east_asian_width/" target="_blank">Pythonで文字を全角か半角か判別する</a>
+* <a href="http://2no.hatenablog.com/entry/2014/11/17/210829" target="_blank">【wxPython】Markdown をライブプレビュー - 2noの日記</a>
+* <a href="https://qiita.com/masakuni-ito/items/593b9d753c44da61937b" target="_blank">Pythonでmarkdownをhtmlにコンバートする - Qiita</a> 
