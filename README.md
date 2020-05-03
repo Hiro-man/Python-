@@ -30,13 +30,21 @@ cssが使用できれば印刷時に自動で折り返せると考えており�
 wx.mediaによるオーディオファイル再生が中々上手く実装できません．．．
 ## 参考リンク
 <!-- * <a href="" target="_blank"></a> -->
-* <a href="https://wxpython.org/Phoenix/docs/html/wx.html.1moduleindex.html" target="_blank">wx.html</a>
-* <a href="https://wxpython.org/Phoenix/docs/html/wx.aui.AuiNotebook.html" target="_blank">wx.aui.AuiNotebook</a>
+* <a href="https://wxpython.org/Phoenix/docs/html/wx.1moduleindex.html" target="_blank">wx — wxPython Phoenix 4.1.1a1 documentation</a>
+* <a href="https://wxpython.org/Phoenix/docs/html/wx.html.1moduleindex.html" target="_blank">wx.html — wxPython Phoenix 4.1.1a1 documentation</a>
+* <a href="https://wxpython.org/Phoenix/docs/html/wx.aui.AuiNotebook.html" target="_blank">wx.aui.AuiNotebook — wxPython Phoenix 4.1.1a1 documentation</a>
+* <a href="https://wxpython.org/Phoenix/docs/html/wx.TextCtrl.html" target="_blank">wx.TextCtrl — wxPython Phoenix 4.1.1a1 documentation</a>
 * <a href="https://wiki.wxpython.org/Printing%20framework%20%28Phoenix%29" target="_blank">Printing framework (Phoenix) - wxPyWiki</a> 
 * <a href="https://www.python-izm.com/gui/" target="_blank">GUI  |  Python-izm</a>
 * <a href="https://www.it-swarm.dev/ja/python/pythonから標準プリンターに印刷しますか%EF%BC%9F/1068950658/" target="_blank">python — Pythonから標準プリンターに印刷しますか？</a> 
 * <a href="https://stackoverflow.com/questions/54617358/print-multiple-pages-with-wxpython" target="_blank">python - Print multiple Pages with wxPython - Stack Overflow</a>
 * <a href="https://pashango-p.hatenadiary.org/entry/20110609/1307630616" target="_blank">wxPythonでクリップボード操作 - Pashango’s Blog</a>
+* <a href="https://maku77.github.io/python/wxpython/statusbar.html" target="_blank">wxPytnon - StatusBar（ステータスバー） | まくまくPythonノート</a>
+* <a href="https://maku77.github.io/python/wxpython/dialog.html" target="_blank">>wxPython - Dialog（ダイアログ） | まくまくPythonノート</a>
+* <a href="https://srad.jp/~tuneo/journal/352723/" target="_blank">あれげメモ：wxPythonプログラミング事始め－アプリケーションの終了 | tuneoの日記 | スラド</a>
+* <a href="http://wxpython.at-ninja.jp/layout.html" target="_blank">レイアウト管理</a>
+* <a href="https://python-minutes.blogspot.com/2016/11/pythongui-notebook.html" target="_blank">python入門ブログ: pythonでGUIツールを作る&#12288;&#65374; Notebook&#12288;ノートブック &#65374;</a>
+* <a href="https://torina.top/detail/205/" target="_blank">wxPythonで、タブ（Notebook） - naritoブログ</a>
 
 * <a href="https://teratail.com/questions/95988" target="_blank">wxpython 現在の時間をリエルタイムで表示｜teratail</a>
 * <a href="https://www.tagindex.com/html_tag/elements/" target="_blank">HTMLタグ/HTML要素一覧 - TAG index</a>
