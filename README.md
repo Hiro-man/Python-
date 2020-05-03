@@ -1,4 +1,4 @@
-# Pythonで書いたメモ帳
+# Python製メモ帳
 文字数制限（～文字以上・～文字以内）のある入力のために，Windouwsのメモ帳に常に文字数が表示されるものを使いたいと考え，
 PythonのGUIモジュールwxPythonを使用して作成したスクリプトです．
 
@@ -35,6 +35,7 @@ wx.mediaによるオーディオファイル再生が中々上手く実装でき
 * <a href="https://wiki.wxpython.org/Printing%20framework%20%28Phoenix%29" target="_blank">Printing framework (Phoenix) - wxPyWiki</a> 
 * <a href="https://www.python-izm.com/gui/" target="_blank">GUI  |  Python-izm</a>
 * <a href="https://www.it-swarm.dev/ja/python/pythonから標準プリンターに印刷しますか%EF%BC%9F/1068950658/" target="_blank">python — Pythonから標準プリンターに印刷しますか？</a> 
+* <a href="https://stackoverflow.com/questions/54617358/print-multiple-pages-with-wxpython" target="_blank">python - Print multiple Pages with wxPython - Stack Overflow</a>
 
 * <a href="https://www.tagindex.com/html_tag/elements/" target="_blank">HTMLタグ/HTML要素一覧 - TAG index</a>
 * <a href="https://water2litter.net/rum/post/python_unicodedata_east_asian_width/" target="_blank">Pythonで文字を全角か半角か判別する</a>
