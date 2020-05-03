@@ -32,7 +32,9 @@ wx.mediaによるオーディオファイル再生が中々上手く実装でき
 <!-- * <a href="" target="_blank"></a> -->
 * <a href="https://wxpython.org/Phoenix/docs/html/wx.html.1moduleindex.html" target="_blank">wx.html</a>
 * <a href="https://wxpython.org/Phoenix/docs/html/wx.aui.AuiNotebook.html" target="_blank">wx.aui.AuiNotebook</a>
+* <a href="https://wiki.wxpython.org/Printing%20framework%20%28Phoenix%29" target="_blank">Printing framework (Phoenix) - wxPyWiki</a> 
 * <a href="https://www.python-izm.com/gui/" target="_blank">GUI  |  Python-izm</a>
+* <a href="https://www.it-swarm.dev/ja/python/pythonから標準プリンターに印刷しますか%EF%BC%9F/1068950658/" target="_blank">python — Pythonから標準プリンターに印刷しますか？</a> 
 
 * <a href="https://www.tagindex.com/html_tag/elements/" target="_blank">HTMLタグ/HTML要素一覧 - TAG index</a>
 * <a href="https://water2litter.net/rum/post/python_unicodedata_east_asian_width/" target="_blank">Pythonで文字を全角か半角か判別する</a>
