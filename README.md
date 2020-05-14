@@ -81,9 +81,9 @@ mp3やcsvといったファイルです．
 随時追加予定．．．
 <!-- * <a href="" target="_blank"></a> -->
 * <a href="https://wxpython.org/Phoenix/docs/html/wx.1moduleindex.html" target="_blank">wx — wxPython Phoenix 4.1.1a1 documentation</a>
-* <a href="https://wxpython.org/Phoenix/docs/html/wx.html.1moduleindex.html" target="_blank">wx.html — wxPython Phoenix 4.1.1a1 documentation</a>
-* <a href="https://wxpython.org/Phoenix/docs/html/wx.aui.AuiNotebook.html" target="_blank">wx.aui.AuiNotebook — wxPython Phoenix 4.1.1a1 documentation</a>
-* <a href="https://wxpython.org/Phoenix/docs/html/wx.TextCtrl.html" target="_blank">wx.TextCtrl — wxPython Phoenix 4.1.1a1 documentation</a>
+    * <a href="https://wxpython.org/Phoenix/docs/html/wx.html.1moduleindex.html" target="_blank">wx.html — wxPython Phoenix 4.1.1a1 documentation</a>
+    * <a href="https://wxpython.org/Phoenix/docs/html/wx.aui.AuiNotebook.html" target="_blank">wx.aui.AuiNotebook — wxPython Phoenix 4.1.1a1 documentation</a>
+    * <a href="https://wxpython.org/Phoenix/docs/html/wx.TextCtrl.html" target="_blank">wx.TextCtrl — wxPython Phoenix 4.1.1a1 documentation</a>
 * <a href="https://wiki.wxpython.org/Printing%20framework%20%28Phoenix%29" target="_blank">Printing framework (Phoenix) - wxPyWiki</a> 
 * <a href="https://www.python-izm.com/gui/" target="_blank">GUI  |  Python-izm</a>
 * <a href="https://www.it-swarm.dev/ja/python/pythonから標準プリンターに印刷しますか%EF%BC%9F/1068950658/" target="_blank">python — Pythonから標準プリンターに印刷しますか？</a> 
@@ -104,3 +104,9 @@ mp3やcsvといったファイルです．
 * <a href="https://qiita.com/masakuni-ito/items/593b9d753c44da61937b" target="_blank">Pythonでmarkdownをhtmlにコンバートする - Qiita</a> 
 * <a href="https://qiita.com/koara-local/items/6b47f3156ca66f28b4ab" target="_blank">[Python][chardet] ファイルの文字コードの自動判別 - Qiita</a>
 * <a href="https://ja.m.wikipedia.org/wiki/等幅フォント" target="_blank">等幅フォント - Wikipedia</a>
+
+* <a href="https://qiita.com/arata-honda/items/be5b0adf6ab432881749" target="_blank">python3でUnicodeDecodeErrorが出た時の応対 - Qiita</a>
+* <a href="https://qiita.com/kouhara/items/ac1ce8b78bd0bfc06d6c" target="_blank">python3で複数文字コードが含まれるファイルをUnicodeDecodeErrorが出る行を飛ばして処理する - Qiita</a>
+* <a href="https://python.civic-apps.com/file-io/" target="_blank">ファイル読み書き file open read write  | Python Snippets</a>
+* <a href="https://docs.python.org/ja/3/howto/unicode.html" target="_blank">Unicode HOWTO &#8212; Python 3.8.3 ドキュメント</a>
+* <a href="https://docs.python.org/ja/3/library/codecs.html" target="_blank">codecs --- codec レジストリと基底クラス &#8212; Python 3.8.3 ドキュメント</a>
