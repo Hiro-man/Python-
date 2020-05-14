@@ -1,5 +1,5 @@
 #-*- coding:utf-8 -*-
-import wx,sys,re,os,unicodedata,wx.media,wx.html2,pickle
+import wx,sys,re,os,unicodedata,wx.media,wx.html2,pickle,pprint,ast,codecs
 import wx.lib.agw.aui.auibook as aui
 from wx.html import HtmlEasyPrinting,HtmlWindow
 import wx.lib.agw.rulerctrl as rc
@@ -395,7 +395,7 @@ class TextCtrl(wx.Panel):
 
 class Table(wx.ListCtrl):
     def __init__(self,parent,path,data,ext,header):
-        super().__init__(parent,wx.ID_ANY,style=wx.LC_REPORT|wx.LC_HRULES|wx.LC_VRULES)
+        super().__init__(parent,wx.ID_ANY,style=wx.LC_SINGLE_SEL|wx.LC_REPORT|wx.LC_HRULES|wx.LC_VRULES)
 
         self.SetHeaderAttr(wx.ItemAttr(
             wx.Colour(colRGB=0),
@@ -405,8 +405,8 @@ class Table(wx.ListCtrl):
 
         # データを読み込んで表示
         for row,d in enumerate(data):
-            if ext == ".pickle":
-                if type(d) == dict:
+            if ext in (".pickle",".txt"):
+                if header:
                     if row == 0:
                         self.add_header(d.keys())
                     self.add_row(row,d.values())
@@ -431,10 +431,10 @@ class Table(wx.ListCtrl):
         for no,d in enumerate(data):
             if no == 0:
                 #self.InsertStringItem(row,d) 
-                self.InsertItem(row,d) 
+                self.InsertItem(row,str(d)) 
             else:
                 #self.SetStringItem(row,no,d) 
-                self.SetItem(row,no,d) 
+                self.SetItem(row,no,str(d)) 
             
 #-------------------------------------------------------------------------------
 
@@ -897,6 +897,22 @@ class textpad(wx.Frame):
             return False
     #---------------------------------------------------------------------------    
     def status_update(self,event):
+        # メニューバーのon/off
+
+        """
+        if self.notebook.GetCurrentPage().file_type=="audio":
+            self.menu_bar.Enable(20,True)
+            self.menu_bar.Enable(21,True)
+            self.menu_bar.Enable(22,True)
+            self.menu_bar.Enable(23,True)
+        else:
+            self.menu_bar.Enable(20,False)
+            self.menu_bar.Enable(21,False)
+            self.menu_bar.Enable(22,False)
+            self.menu_bar.Enable(23,False)
+        """
+
+        
         # 動画・音楽ファイルのタブのとき
         if self.notebook.GetCurrentPage().file_type=="audio":
             self.sb.SetStatusText('{}'.format(
@@ -1012,9 +1028,60 @@ class textpad(wx.Frame):
             )
     #---------------------------------------------------------------------------
     def save_file(self):
+        # テキストファイルの場合
         if self.notebook.GetCurrentPage().file_type=="txt":
             with open(self.notebook.GetCurrentPage().file_path,mode="w",encoding=self.notebook.GetCurrentPage().file_encoding) as f:
-                f.write(self.notebook.GetCurrentPage().GetValue())
+                f.write(self.notebook.GetCurrentPage().textctrl.GetValue())
+        # 表ファイルの場合
+        elif self.notebook.GetCurrentPage().file_type=="table":
+            # pickleの場合，元のデータとは形式が変わってしまう可能性がある
+            if self.notebook.GetCurrentPage().ext in (".pickle",".txt"):
+                text = []
+                keys = [] # headerの要素を格納
+                # headerの読み込み
+                for j in range(self.notebook.GetCurrentPage().GetColumnCount()):
+                    keys.append(self.notebook.GetCurrentPage().GetColumn(j).GetText())
+                # 行ごとに読み込んでいく
+                for i in range(self.notebook.GetCurrentPage().GetItemCount()):
+                    element = {}
+                    for j in range(self.notebook.GetCurrentPage().GetColumnCount()):
+                        element[keys[j]] = self.notebook.GetCurrentPage().GetItem(i,j).GetText()
+                    text.append(element)
+
+                if self.notebook.GetCurrentPage().ext == ".pickle":
+                    # pickle化
+                    with open(self.notebook.GetCurrentPage().file_path,mode="wb") as f:
+                        pickle.dump(text,f)
+                elif self.notebook.GetCurrentPage().ext == ".txt":
+                    with open(self.notebook.GetCurrentPage().file_path,mode="w",encoding=self.notebook.GetCurrentPage().file_encoding) as f:
+                        pprint.pprint(text,stream=f)
+            else:
+                text = ""
+                # headerの読み込み
+                for j in range(self.notebook.GetCurrentPage().GetColumnCount()):
+                    if j == 0:
+                        text += '{}'.format(self.notebook.GetCurrentPage().GetColumn(j).GetText())
+                        continue
+                    if self.notebook.GetCurrentPage().ext == ".csv":
+                        text += ',{}'.format(self.notebook.GetCurrentPage().GetColumn(j).GetText())
+                    elif self.notebook.GetCurrentPage().ext == ".tsv":
+                        text += '\t{}'.format(self.notebook.GetCurrentPage().GetColumn(j).GetText())
+                text += "\n"
+                # 行ごとに読み込んでいく
+                for i in range(self.notebook.GetCurrentPage().GetItemCount()):
+                    for j in range(self.notebook.GetCurrentPage().GetColumnCount()):
+                        if j == 0:
+                            text += "{}".format(self.notebook.GetCurrentPage().GetItem(i,j).GetText())
+                            continue
+                        if self.notebook.GetCurrentPage().ext == ".csv":
+                            text += ",{}".format(self.notebook.GetCurrentPage().GetItem(i,j).GetText())
+                        elif self.notebook.GetCurrentPage().ext == ".tsv":
+                            text += "\t{}".format(self.notebook.GetCurrentPage().GetItem(i,j).GetText())
+                    text += "\n"
+                # 出力
+                with open(self.notebook.GetCurrentPage().file_path,mode="w",encoding=self.notebook.GetCurrentPage().file_encoding) as f:
+                    f.write(text)
+        # Webページの場合，そのページのソース＝htmlを保存
         elif self.notebook.GetCurrentPage().file_type=="url":
             with open(self.notebook.GetCurrentPage().file_path,mode="w",encoding=self.notebook.GetCurrentPage().file_encoding) as f:
                 f.write(self.notebook.GetCurrentPage().GetPageSource())            
@@ -1091,6 +1158,206 @@ class textpad(wx.Frame):
             event.Veto()
     #---------------------------------------------------------------------------
     def selectMenu(self,event):
+
+        #-----------------------------------------------------------------------
+        def read_textfile(name,path):
+            # ファイルの読み込み
+            # LoadFileメソッドはテキストファイルだけなので，with構文でファイルを読み込む
+            encoding = check_encoding(path)
+            try:
+                with open(path,mode="r",encoding=encoding) as f:
+                    data = f.read()
+            except UnicodeDecodeError:
+                with codecs.open(path,mode="r",encoding="utf-8",errors="backslashreplace") as f:
+                    data = f.read()
+                encoding="utf-8"
+            # ファイルの内容を新しいタブで表示
+            self.textctrl_make(
+                text=data,
+                path=path,
+                encoding=encoding,
+                name=name,
+                title=name
+                )
+        #-----------------------------------------------------------------------
+        def read_table(path,ext):
+
+            def shape(text):
+                # 要素数が一定になるように整形する
+                data = []
+                for no,t in enumerate(text):
+                    # set型なら読み込み中止
+                    if type(t) == set:
+                        return False
+                    # 要素数を取得
+                    if no == 0:
+                        elements_cnt = len(t)
+                        # dictの場合はキーも取得
+                        if type(t) == dict:
+                            keys = t.keys()
+                            header = True
+                        else:
+                            header = False
+                    if len(t) > elements_cnt:
+                        # dictの場合
+                        if type(t) == dict:
+                            data.append({key:value for key,value in list(t.itemes())[:elements_cnt]})
+                            t = {key:value for key,value in list(t.itemes())[elements_cnt:]}
+                        # list，tupleの場合
+                        else:
+                            data.append(t[:elements_cnt])
+                            t = t[elements_cnt:]
+                        if len(t) > elements_cnt:
+                            while len(t) > elements_cnt:
+                                # dictの場合
+                                if type(t) == dict:
+                                    data.append({key:value for key,value in list(t.itemes())[:elements_cnt]})
+                                    t = {key:value for key,value in list(t.itemes())[elements_cnt:]}
+                                # list，tupleの場合
+                                else:
+                                    data.append(t[:elements_cnt])
+                                    t = t[elements_cnt:]
+                                if len(t) <= elements_cnt:
+                                    # dictの場合
+                                    if type(t) == dict:
+                                        for key in keys:
+                                            try:
+                                                t[key]
+                                            except KeyError:
+                                                t[key] = ""
+                                    # tupleの場合
+                                    elif type(t) == tuple:
+                                        t = t + ('' for i in range(elements_cnt-len(t)))
+                                    # listの場合
+                                    elif type(t) == list:
+                                        t = t + ['' for i in range(elements_cnt-len(t))]
+                                    data.append(t)
+                                    break
+                    else:
+                        # dictの場合
+                        if type(t) == dict:
+                            for key in keys:
+                                try:
+                                    t[key]
+                                except KeyError:
+                                    t[key] = ""
+                        # tupleの場合
+                        elif type(t) == tuple:
+                            t = t + ('' for i in range(elements_cnt-len(t)))
+                        # listの場合
+                        elif type(t) == list:
+                            t = t + ['' for i in range(elements_cnt-len(t))]
+
+                        data.append(t)
+
+                return data,header
+            
+            #-------------------------------------------------------------------
+            # pprintでtxtファイルとして保存していたファイルの読み込みの場合
+            if ext == ".txt":
+                encoding = check_encoding(path)
+
+                # ファイルの読み込み
+                try:
+                    with open(path,mode="r",encoding=encoding) as f:
+                        text = ast.literal_eval(f.read())
+                except UnicodeDecodeError:
+                    with codecs.open(path,mode="r",encoding="utf-8",errors="backslashreplace") as f:
+                        text = ast.literal_eval(f.read())
+                    encoding="utf-8"
+                    
+                # 要素数が一定になるように整形する
+                data,header = shape(text)
+            #-------------------------------------------------------------------
+            # pickleファイルの場合
+            elif ext == ".pickle":
+                encoding = None
+
+                # ファイルの読み込み
+                with open(path,mode="rb") as f:
+                    text = pickle.load(f)
+                    
+                # 要素数が一定になるように整形する
+                data,header = shape(text)
+            #-------------------------------------------------------------------
+            # csvファイル・tsvファイルの場合
+            elif ext in (".csv",".tsv"):
+                encoding = check_encoding(path)
+                data = []
+                elements_cnt = 0
+
+                # ファイルの読み込み
+                try:
+                    with open(path,mode="r",encoding=encoding) as f:
+                        table = f.readline()
+                except UnicodeDecodeError:
+                    with codecs.open(path,mode="r",encoding="utf-8",errors="backslashreplace") as f:
+                        table = f.readline()
+                        
+                for no,line in enumerate(table):
+                    # 改行だけの空白行をスキップ
+                    if len(line) == 1:
+                        continue
+                    # 区切り文字で要素を区切る
+                    if ext == ".csv":
+                        d = line.split(",")
+                    else:
+                        d = line.split("   ")
+                    # 要素数を取得
+                    if no == 0:
+                        elements_cnt = len(d)
+                    # 要素数が一定になるように整形する
+                    if len(d) > elements_cnt:
+                        data.append(d[:elements_cnt])
+                        d = d[elements_cnt:]
+                        if len(d) > elements_cnt:
+                            while len(d) > elements_cnt:
+                                data.append(d[:elements_cnt])
+                                d = d[elements_cnt:]
+                                if len(d) <= elements_cnt:
+                                    d = d + ['' for i in range(elements_cnt-len(d))]
+                                    data.append(d)
+                                    break
+                        elif len(d) < elements_cnt:
+                            d = d + ['' for i in range(elements_cnt-len(d))]
+                            data.append(d)
+                        else:
+                            data.append(d)
+                    elif len(d) < elements_cnt:
+                        d = d + ['' for i in range(elements_cnt-len(d))]
+                        data.append(d)
+                    else:
+                        data.append(d)
+                                
+                                
+                dialog = wx.MessageDialog(None, "ヘッダーはありますか？", caption="確認",style=wx.YES_NO)
+                res = dialog.ShowModal()
+                if res == wx.ID_YES:
+                    header = True
+                elif res == wx.ID_NO:
+                    header = False
+                dialog.Destroy()
+                
+            else:
+                return False
+
+            page = Table(
+                self.notebook,
+                path,
+                data,
+                ext,
+                header
+                )
+            self.notebook.AddPage(
+                    page,
+                    path.split(os.path.sep)[-1],
+                    file_type="table",
+                    path=path,
+                    encoding = encoding,
+                    name=path.split(os.path.sep)[-1]
+                    )
+            return True
+        #-----------------------------------------------------------------------
         #-----------------------------------------------------------------------
         # 新規保存（ファイル出力）
         if event.GetId() == 1:
@@ -1116,8 +1383,8 @@ class textpad(wx.Frame):
             # 保存したので*を外す（タブ名を変更）
             self.notebook.SetPageText(self.notebook.GetSelection(), self.notebook.GetCurrentPage().file_name)
         #-----------------------------------------------------------------------            
-        # （テキストとして）ファイルを開く
-        elif event.GetId() == 3:
+        # ファイルを開く１
+        elif event.GetId() in (3,4):
             # ファイル選択ダイアログを作成
             dialog = wx.FileDialog(None, u'ファイル選択してください', style=wx.FD_OPEN )
             # ファイルが選択されたとき
@@ -1128,25 +1395,18 @@ class textpad(wx.Frame):
             else:
                 dialog.Destroy()
                 return
-            
-            # ファイルの読み込み
-            # LoadFileメソッドはテキストファイルだけなので，with構文でファイルを読み込む
-            encoding = check_encoding(path)
-            with open(path,mode="r",encoding=encoding) as f:
-                data = f.read()
-            # ファイルの内容を新しいタブで表示
-            self.textctrl_make(
-                text=data,
-                path=path,
-                encoding=encoding,
-                name=path.split(os.path.sep)[-1],
-                title=path.split(os.path.sep)[-1]
-                )
-            
-            del data,path
+            name=path.split(os.path.sep)[-1]
+
+            # （テキストとして）ファイルを開く
+            if event.GetId() == 3:
+                read_textfile(name,path)
+            # （表として）ファイルを開く
+            if event.GetId() == 4:
+                root, ext = os.path.splitext(name)
+                read_table(path,ext)
         #-----------------------------------------------------------------------            
-        # ファイルを開く
-        elif event.GetId() == 4:
+        # ファイルを開く２
+        elif event.GetId() == 5:
             # ファイル選択ダイアログを作成
             dialog = wx.FileDialog(None, u'ファイル選択してください', style=wx.FD_OPEN )
             dialog.SetWildcard(
@@ -1177,18 +1437,11 @@ class textpad(wx.Frame):
             #-------------------------------------------------------------
             # テキストファイルを開く
             if ext in (".txt",".md"):
-                # LoadFileメソッドはテキストファイルだけなので，with構文でファイルを読み込む
-                encoding = check_encoding(path)
-                with open(path,mode="r",encoding=encoding) as f:
-                    data = f.read()
-                # ファイルの内容を新しいタブで表示
-                self.textctrl_make(
-                    text=data,
-                    path=path,
-                    encoding=encoding,
-                    name=name,
-                    title=name
-                    )
+                read_textfile(name,path)
+            #-------------------------------------------------------------
+            # 表ファイルを開く
+            elif ext in (".csv",".tsv",".pickle"):   
+                read_table(path,ext)
             #-------------------------------------------------------------
             # 音楽ファイルを開く
             elif ext in (".mp4",".mp3",".avi",".wav"):
@@ -1199,82 +1452,6 @@ class textpad(wx.Frame):
                         path.split(os.path.sep)[-1],
                         file_type="audio",
                         path=path,
-                        name=path.split(os.path.sep)[-1]
-                        )
-            #-------------------------------------------------------------
-            # 表ファイルを開く
-            elif ext in (".csv",".tsv",".pickle"):   
-                if ext == ".pickle":
-                    encoding = None
-                    header = False
-                    with open(path,mode="rb") as f:
-                        data = pickle.load(f)
-
-                    for d in data:
-                        pass
-                else:
-                    encoding = check_encoding(path)
-                    data = []
-                    elements_cnt = 0
-                    with open(path,mode="r",encoding=encoding) as f:
-                        for no,line in enumerate(f):
-                            # 改行だけの空白行をスキップ
-                            if len(line) == 1:
-                                continue
-                            # 区切り文字で要素を区切る
-                            if ext == ".csv":
-                                d = line.split(",")
-                            else:
-                                d = line.split("   ")
-                            # 要素数を取得
-                            if no == 0:
-                                elements_cnt = len(d)
-                            # 要素数が一定になるように整形する
-                            if len(d) > elements_cnt:
-                                data.append(d[:elements_cnt])
-                                d = d[elements_cnt:]
-                                if len(d) > elements_cnt:
-                                    while len(d) > elements_cnt:
-                                        data.append(d[:elements_cnt])
-                                        d = s[elements_cnt:]
-                                        if len(d) < elements_cnt:
-                                            d = d + ['' for i in range(elements_cnt-len(d))]
-                                            data.append(d)
-                                            break
-                                elif len(d) < elements_cnt:
-                                    d = d + ['' for i in range(elements_cnt-len(d))]
-                                    data.append(d)
-                                else:
-                                    data.append(d)
-                            elif len(d) < elements_cnt:
-                                d = d + ['' for i in range(elements_cnt-len(d))]
-                                data.append(d)
-                            else:
-                                data.append(d)
-                                
-                                
-                    dialog = wx.MessageDialog(None, "ヘッダーはありますか？", caption="確認",style=wx.YES_NO)
-                    res = dialog.ShowModal()
-                    if res == wx.ID_YES:
-                        header = True
-                    elif res == wx.ID_NO:
-                        header = False
-                    dialog.Destroy()
-
-
-                page = Table(
-                    self.notebook,
-                    path,
-                    data,
-                    ext,
-                    header
-                    )
-                self.notebook.AddPage(
-                        page,
-                        path.split(os.path.sep)[-1],
-                        file_type="table",
-                        path=path,
-                        encoding = encoding,
                         name=path.split(os.path.sep)[-1]
                         )
             #-------------------------------------------------------------
@@ -1293,7 +1470,7 @@ class textpad(wx.Frame):
             
         #-----------------------------------------------------------------------
         # Webページ開く
-        elif event.GetId() == 5:
+        elif event.GetId() == 6:
             word = input_word("検索")
             if word:
                 page = wx.html2.WebView.New(self.notebook)
@@ -1312,19 +1489,32 @@ class textpad(wx.Frame):
                 """
         #-----------------------------------------------------------------------           
         # 新規作成
-        elif event.GetId() == 6:
+        elif event.GetId() == 7:
             self.textctrl_make()
         #-----------------------------------------------------------------------
         # 印刷
-        elif event.GetId() == 7:
+        elif event.GetId() == 8:
             if self.notebook.GetCurrentPage().file_type in ("txt","table"):
                 self.printer()
             elif self.notebook.GetCurrentPage().file_type in ("pdf","url"):
                 self.notebook.GetCurrentPage().Print()
         #-----------------------------------------------------------------------
         # 終了
-        elif event.GetId() == 8:
+        elif event.GetId() == 9:
             self.close_event(wx.EVT_CLOSE)
+        #-----------------------------------------------------------------------
+        # コピー
+        if event.GetId() == 10:
+            # 文字列をコピー
+            if self.notebook.GetCurrentPage().file_type=="txt":
+                wx.TheClipboard.SetData(wx.TextDataObject(self.notebook.GetCurrentPage().textctrl.GetValue()))
+                wx.TheClipboard.Flush()
+                wx.TheClipboard.Close()
+            # URLコピー
+            elif self.notebook.GetCurrentPage().file_type=="url":
+                wx.TheClipboard.SetData(wx.TextDataObject(self.notebook.GetCurrentPage().GetCurrentURL()))
+                wx.TheClipboard.Flush()
+                wx.TheClipboard.Close()
         #-----------------------------------------------------------------------
         # タブを閉じる
         elif event.GetId() == 18:
@@ -1418,13 +1608,8 @@ class textpad(wx.Frame):
         #-----------------------------------------------------------------------
         # urlの場合だけのメニュー
         elif self.notebook.GetCurrentPage().file_type=="url":
-            # URLコピー
-            if event.GetId() == 10:
-                wx.TheClipboard.SetData(wx.TextDataObject(self.notebook.GetCurrentPage().GetCurrentURL()))
-                wx.TheClipboard.Flush()
-                wx.TheClipboard.Close()
             # Undo
-            elif event.GetId() == 14:
+            if event.GetId() == 14:
                 self.notebook.GetCurrentPage().Undo()
             # Redo
             elif event.GetId() == 15:
@@ -1440,16 +1625,9 @@ class textpad(wx.Frame):
         #-----------------------------------------------------------------------
         # txtの場合だけのメニュー
         elif self.notebook.GetCurrentPage().file_type=="txt":
-            #--------------------------------------------------------------            
-            # コピー
-            if event.GetId() == 9:
-                wx.TheClipboard.SetData(wx.TextDataObject(self.notebook.GetCurrentPage().textctrl.GetValue()))
-                wx.TheClipboard.Flush()
-                wx.TheClipboard.Close()
-            
             #-------------------------------------------------------------            
             # 検索
-            elif event.GetId() == 11:
+            if event.GetId() == 11:
                 self.search_word = input_word("検索")
                 if self.search_word:
                     self.search_word_pos = self.notebook.GetCurrentPage().textctrl.GetValue().find(self.search_word)
@@ -1510,66 +1688,87 @@ class textpad(wx.Frame):
                 self.notebook.GetCurrentPage().pause(wx.media.EVT_MEDIA_PAUSE)
             # ループ再生
             elif event.GetId() == 23:
-                if self.loop_button.IsChecked():
-                    self.loop_button.Check(False)
+                if self.menu_bar.FindMenuItem(22).IsChecked():
                     self.notebook.GetCurrentPage().loop_play = False
                 else:
-                    self.loop_button.Check(True)
                     self.notebook.GetCurrentPage().loop_play = True
     #---------------------------------------------------------------------------
     def setmenubar(self):
-        menu_file = wx.Menu()
+        def show_help(event):
+            self.sb.SetStatusText()
+        
+        import wx.lib.agw.flatmenu as FM
+        
+        menu_file = FM.FlatMenu()
         menu_file.Append(1, '名前を付けて保存')
         menu_file.Append(2, '上書き保存')
         menu_file.AppendSeparator()
         menu_file.Append(3, 'テキストファイルとして開く')
-        menu_file.Append(4, 'ファイルを開く')
-        menu_file.Append(5, 'Webページ開く')
+        menu_file.Append(4, '表ファイルとして開く')
+        menu_file.Append(5, 'ファイルを開く')
+        menu_file.Append(6, 'Webページ開く')
         menu_file.AppendSeparator()
-        menu_file.Append(6, '新規作成')
+        menu_file.Append(7, '新規作成')
         menu_file.AppendSeparator()
-        menu_file.Append(7, '印刷')
+        menu_file.Append(8, '印刷')
         menu_file.AppendSeparator()
-        menu_file.Append(8, '終了')
+        menu_file.Append(9, '終了')
  
-        menu_edit = wx.Menu()
-        menu_edit.Append(9, 'コピー')
-        menu_edit.Append(10, 'URLコピー')
+        menu_edit = FM.FlatMenu()
+        menu_edit.Append(10, 'コピー',
+                         """\
+            テキストボックスに入力された文字を全てクリップボードにコピーします．
+            Webページの場合はそのWebページのURLをクリップボードにコピーします．\
+            """)
         menu_edit.AppendSeparator()
-        menu_edit.Append(11, '検索')
+        menu_edit.Append(11, '検索', """\
+            表示されつダイアログに検索したい文字を入力してください．
+            テキストボックスに入力された全ての文字のうち，検索したい文字と最初に一致した文字を選択状態にします．\
+            """)
         #menu_edit.Append(12, '次を検索')
-        menu_edit.Append(13, '全置換')
+        menu_edit.Append(13, '全置換', """\
+            表示されつダイアログに置換したい文字と置換後の文字を順にを入力してください．
+            テキストボックスに入力された全ての文字のうち，検索したい文字と一致した文字全てを置換後の文字に置き換えます．\
+            """)
         menu_edit.AppendSeparator()
-        menu_edit.Append(14, 'Undo 元に戻す')
-        menu_edit.Append(15, 'Redo やり直し')
-        menu_edit.Append(16, 'Paste 貼り付け')
+        menu_edit.Append(14, 'Undo', "元に戻す")
+        menu_edit.Append(15, 'Redo', "やり直し")
+        menu_edit.Append(16, 'Paste', "クリップボードにある文字列を貼り付けます．")
         menu_edit.Append(17, 'Cut')
         menu_edit.AppendSeparator()
         menu_edit.Append(18, 'タブを閉じる')
         menu_edit.Append(19, '全てのタブを閉じる')
 
-        menu_media = wx.Menu()
-        menu_media.Append(20, '再生')
-        menu_media.Append(21, '停止')
-        menu_media.Append(22, '一時停止')
-        self.loop_button = menu_media.AppendCheckItem(23,'ループ再生')
-        self.loop_button.Check(False)
+        menu_media = FM.FlatMenu()
+        menu_media.Append(20, '再生', "読み込んだオーディオファイルを再生します．")
+        menu_media.Append(21, '停止', "読み込んだオーディオファイルを停止します")
+        menu_media.Append(22, '一時停止', "読み込んだオーディオファイルを一時停止します")
+        menu_media.AppendCheckItem(23,'ループ再生',
+                                   "チェックを付けると，読み込んだオーディオファイルが停止した際に，自動的に再生されるようになります．")
 
-        menu_special = wx.Menu()
+        menu_special = FM.FlatMenu()
         menu_special.Append(24, '回＝回')
         menu_special.Append(25, 'パプリカ')
         menu_special.AppendSeparator()
         menu_special.Append(26, 'AC-bu1')
         menu_special.Append(27, 'AC-bu2')
         
-        menu_bar = wx.MenuBar()
-        menu_bar.Append(menu_file, 'ファイル')
-        menu_bar.Append(menu_edit, '編集')
-        menu_bar.Append(menu_media, '再生/停止')
-        menu_bar.Append(menu_special, 'おまけ')
+        self.menu_bar = FM.FlatMenuBar(self,wx.ID_ANY,options=FM.FM_OPT_IS_LCD)
+        self.menu_bar.Append(menu_file, 'ファイル')
+        self.menu_bar.Append(menu_edit, '編集')
+        self.menu_bar.Append(menu_media, '操作')
+        self.menu_bar.Append(menu_special, 'おまけ')
+
+        self.menu_bar.FindMenuItem(22).Check(False)
+
+        #import wx.lib.agw.balloontip as BT
+        #tipballoon = BT.BalloonTip(topicon=None, toptitle="textctrl",message="this is a textctrl",shape=BT.BT_ROUNDED,tipstyle=BT.BT_LEAVE)
+        #tipballoon.SetTarget(menu_special)
 
         self.Bind(wx.EVT_MENU,self.selectMenu)
-        self.SetMenuBar(menu_bar)
+        self.Bind(FM.EVT_FLAT_MENU_ITEM_MOUSE_OVER,show_help)
+        self.Bind(FM.EVT_FLAT_MENU_ITEM_MOUSE_OVER,self.status_update)
+        #self.SetMenuBar(self.menu_bar)
     #---------------------------------------------------------------------------
     def __init__(self):
         super().__init__(None,wx.ID_ANY,'Python製メモ帳', size=(700, 500))
@@ -1586,6 +1785,12 @@ class textpad(wx.Frame):
 
         # menu bar
         self.setmenubar()
+
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        main_sizer.Add(self.menu_bar, 0, wx.EXPAND)
+        main_sizer.Add(self.notebook, 1, wx.EXPAND)
+        self.SetSizer(main_sizer)
+        self.SetAutoLayout(True)
 
         # status bar
         self.sb = self.CreateStatusBar()
