@@ -68,6 +68,7 @@ mp3やcsvといったファイルです．
 全体としても改善が必要であると考えています．
 
 ## 参考リンク
+随時追加予定．．．
 <!-- * <a href="" target="_blank"></a> -->
 * <a href="https://wxpython.org/Phoenix/docs/html/wx.1moduleindex.html" target="_blank">wx — wxPython Phoenix 4.1.1a1 documentation</a>
 * <a href="https://wxpython.org/Phoenix/docs/html/wx.html.1moduleindex.html" target="_blank">wx.html — wxPython Phoenix 4.1.1a1 documentation</a>
