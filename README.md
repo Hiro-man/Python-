@@ -111,5 +111,9 @@ mp3やcsvといったファイルです．
 * <a href="https://docs.python.org/ja/3/howto/unicode.html" target="_blank">Unicode HOWTO &#8212; Python 3.8.3 ドキュメント</a>
 * <a href="https://docs.python.org/ja/3/library/codecs.html" target="_blank">codecs --- codec レジストリと基底クラス &#8212; Python 3.8.3 ドキュメント</a>
 
+* <a href="https://www.gixo.jp/blog/12445/amp/" target="_blank">分析しやすい「ファイル形式」｜データ分析のお作法 - GiXo Ltd.</a>
+* <a href="https://blog.amedama.jp/entry/2015/12/05/132520" target="_blank">Python: オブジェクトを漬物 (Pickle) にする - CUBE SUGAR CONTAINER</a>
+* <a href="https://ermanii.wordpress.com/2009/07/16/%e3%83%ad%e3%83%bc%e3%82%ab%e3%83%ab%e3%83%95%e3%82%a1%e3%82%a4%e3%83%ab%e3%81%aeurl/" target="_blank">ローカルファイルのURL | Ermanii's memo-random</a>
+
 * <a href="https://www.lifewithpython.com/2017/12/python-tuple-list-difference.html" target="_blank">Python のタプルとリストの違い&#12289;タプルの使いどころ - Life with Python</a>
 * <a href="https://note.nkmk.me/python-tuple-operation/" target="_blank">Pythonでタプルの要素を追加・変更・削除 | note.nkmk.me</a>
