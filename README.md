@@ -29,11 +29,11 @@ exe化については以下のリンクを参照してください．
 * `sys`
 * `re`
 * `os`
-* `unicodedata`
-* `time`
+<!-- * `unicodedata` コレ使ってないかも．．．っということで削除．-->
 * `pprint`
 * `ast`
 * `codecs`
+* `platform`
 
 ## 更新情報と現状の課題など
 ### 2020/05/03
@@ -86,6 +86,8 @@ mp3やcsvといったファイルです．
     * <a href="https://wxpython.org/Phoenix/docs/html/wx.html.1moduleindex.html" target="_blank">wx.html — wxPython Phoenix 4.1.1a1 documentation</a>
     * <a href="https://wxpython.org/Phoenix/docs/html/wx.aui.AuiNotebook.html" target="_blank">wx.aui.AuiNotebook — wxPython Phoenix 4.1.1a1 documentation</a>
     * <a href="https://wxpython.org/Phoenix/docs/html/wx.TextCtrl.html" target="_blank">wx.TextCtrl — wxPython Phoenix 4.1.1a1 documentation</a>
+    * <a href="https://wxpython.org/Phoenix/docs/html/wx.functions.html#wx.Sleep" target="_blank">https://wxpython.org/Phoenix/docs/html/wx.functions.html#wx.Sleep</a>
+    * <a href="https://wxpython.org/Phoenix/docs/html/wx.lib.agw.flatmenu.html#module-wx.lib.agw.flatmenu" target="_blank">wx.lib.agw.flatmenu — wxPython Phoenix 4.1.1a1 documentation</a>
 * <a href="https://wiki.wxpython.org/Printing%20framework%20%28Phoenix%29" target="_blank">Printing framework (Phoenix) - wxPyWiki</a> 
 * <a href="https://www.python-izm.com/gui/" target="_blank">GUI  |  Python-izm</a>
 * <a href="https://www.it-swarm.dev/ja/python/pythonから標準プリンターに印刷しますか%EF%BC%9F/1068950658/" target="_blank">python — Pythonから標準プリンターに印刷しますか？</a> 
@@ -98,6 +100,10 @@ mp3やcsvといったファイルです．
 * <a href="https://python-minutes.blogspot.com/2016/11/pythongui-notebook.html" target="_blank">python入門ブログ: pythonでGUIツールを作る&#12288;&#65374; Notebook&#12288;ノートブック &#65374;</a>
 * <a href="https://torina.top/detail/205/" target="_blank">wxPythonで、タブ（Notebook） - naritoブログ</a>
 * <a href="https://ja.coder.work/so/python/561309" target="_blank">python - wxPython TextCtrlウィジェットのフォントを変更する - ITツールウェブ</a>
+
+* <a href="https://tatzyr.hatenablog.com/entry/2017/01/27/153800" target="_blank">Pythonで大きいファイルを読み込む時にプログレスバーを表示 - ぼろぼろ平原</a>
+* <a href="https://qiita.com/everycamel/items/da9651db9d4807cb144d" target="_blank">wx.ProgressDialog の AUTO_HIDE では明示的な Destroy() が必要 - Qiita</a>
+* <a href="https://wxpython.org/Phoenix/docs/html/wx.ProgressDialog.html" target="_blank">wx.ProgressDialog — wxPython Phoenix 4.1.1a1 documentation</a>
 
 * <a href="https://teratail.com/questions/95988" target="_blank">wxpython 現在の時間をリエルタイムで表示｜teratail</a>
 * <a href="https://www.tagindex.com/html_tag/elements/" target="_blank">HTMLタグ/HTML要素一覧 - TAG index</a>
@@ -119,3 +125,5 @@ mp3やcsvといったファイルです．
 
 * <a href="https://www.lifewithpython.com/2017/12/python-tuple-list-difference.html" target="_blank">Python のタプルとリストの違い&#12289;タプルの使いどころ - Life with Python</a>
 * <a href="https://note.nkmk.me/python-tuple-operation/" target="_blank">Pythonでタプルの要素を追加・変更・削除 | note.nkmk.me</a>
+
+* <a href="http://blog.livedoor.jp/pythonsuezo/archives/10165277.html" target="_blank">wxpythonの使い方 wxFrame編 : 初心者のpython備忘録</a>

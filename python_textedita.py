@@ -1,11 +1,12 @@
 #-*- coding:utf-8 -*-
-import wx,sys,re,os,unicodedata,wx.media,wx.html2,pickle,pprint,ast,codecs
+import wx,sys,re,os,wx.media,wx.html2,pickle,pprint,ast,codecs
 import wx.lib.agw.aui.auibook as aui
 from wx.html import HtmlEasyPrinting,HtmlWindow
 import wx.lib.agw.rulerctrl as rc
-import wx.lib.agw.speedmeter as sm
-from time import sleep
-
+#-------------------------------------------------------------------------------
+import platform
+pf = platform.system()
+#-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 """
 pdfviewerに関して元々のモジュールのスクリプトを管理者権限で書き換えるか，
@@ -191,9 +192,6 @@ class mupdfProcessor(mupdfProcessor):
                               'pdf viewer' , wx.OK |wx.ICON_EXCLAMATION)
                 dlg.ShowModal()
                 dlg.Destroy()
-#-------------------------------------------------------------------------------
-import platform
-pf = platform.system()
 #-------------------------------------------------------------------------------
 
 shagantaishi="""\
@@ -393,9 +391,11 @@ class TextCtrl(wx.Panel):
 
 #-------------------------------------------------------------------------------
 
-class Table(wx.ListCtrl):
+import wx.lib.mixins.listctrl as listmix
+class Table(wx.ListCtrl, listmix.TextEditMixin):
     def __init__(self,parent,path,data,ext,header):
         super().__init__(parent,wx.ID_ANY,style=wx.LC_SINGLE_SEL|wx.LC_REPORT|wx.LC_HRULES|wx.LC_VRULES)
+        listmix.TextEditMixin.__init__(self)
 
         self.SetHeaderAttr(wx.ItemAttr(
             wx.Colour(colRGB=0),
@@ -435,7 +435,7 @@ class Table(wx.ListCtrl):
             else:
                 #self.SetStringItem(row,no,d) 
                 self.SetItem(row,no,str(d)) 
-            
+
 #-------------------------------------------------------------------------------
 
 class PDF(wx.Panel):
@@ -449,7 +449,7 @@ class PDF(wx.Panel):
                                       wx.DefaultSize,
                                       0)
         layout.Add(self.buttonpanel,0,
-                   wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.LEFT|wx.RIGHT|wx.TOP, 5)
+                   wx.GROW|wx.LEFT|wx.RIGHT|wx.TOP, 5)
         self.viewer = pdfViewer(self,
                                 wx.ID_ANY,
                                 wx.DefaultPosition,
@@ -725,13 +725,13 @@ class TextBox(wx.Dialog):
         self.encoding = None
         self.Destroy()
     #---------------------------------------------------------------------------
-    def __init__(self):
+    def __init__(self,name=""):
         super().__init__(None,wx.ID_ANY,'ファイル名を入力してください', size=(250, 150))
         root_panel = wx.Panel(self, wx.ID_ANY)
 
         # text
         text_panel = wx.Panel(root_panel, wx.ID_ANY,pos=(0,0),size=(200,30))
-        self.text = wx.TextCtrl(text_panel,wx.ID_ANY,size=(200,25))
+        self.text = wx.TextCtrl(text_panel,wx.ID_ANY,name,size=(200,25))
         
         # ComboBox
         ComboBox_panel = wx.Panel(root_panel, wx.ID_ANY,pos=(0,30),size=(200,30))
@@ -771,14 +771,14 @@ class TextBox(wx.Dialog):
 
         self.ShowModal()
 #-------------------------------------------------------------------------------
-def input_file_name():
-    textbox = TextBox()
+def input_file_name(name=""):
+    textbox = TextBox(name)
     if textbox.text == None:
         return None,None
     else:
         text = textbox.text
         encoding = textbox.encoding
-        print(text,encoding)
+        #print(text,encoding)
         return text,encoding
 #-------------------------------------------------------------------------------
 class textpad(wx.Frame):
@@ -1088,7 +1088,7 @@ class textpad(wx.Frame):
     #---------------------------------------------------------------------------
     def save_file_path(self):
         # ファイル名を入力
-        title,encoding = input_file_name()
+        title,encoding = input_file_name(self.notebook.GetCurrentPage().file_name)
         if title == None:
             return False
         
@@ -1161,16 +1161,33 @@ class textpad(wx.Frame):
 
         #-----------------------------------------------------------------------
         def read_textfile(name,path):
+            data = ""
+            read_size = 0
+
+            progress = wx.ProgressDialog("読み込み中", "しばらくお待ちください"
+                                        , maximum=os.path.getsize(path)
+                                        , parent=None
+                                        ,style=wx.PD_APP_MODAL|wx.PD_AUTO_HIDE|wx.STAY_ON_TOP
+                                        )
+            progress.Show()
             # ファイルの読み込み
             # LoadFileメソッドはテキストファイルだけなので，with構文でファイルを読み込む
             encoding = check_encoding(path)
             try:
                 with open(path,mode="r",encoding=encoding) as f:
-                    data = f.read()
+                    for line in f:
+                        data += line
+                        read_size += len(line.encode(encoding))
+                        progress.Update(read_size)
             except UnicodeDecodeError:
-                with codecs.open(path,mode="r",encoding="utf-8",errors="backslashreplace") as f:
-                    data = f.read()
                 encoding="utf-8"
+                with codecs.open(path,mode="r",encoding="utf-8",errors="backslashreplace") as f:
+                    for line in f:
+                        data += line
+                        read_size += len(line.encode(encoding))
+                        progress.Update(read_size)
+            progress.Destroy() 
+            
             # ファイルの内容を新しいタブで表示
             self.textctrl_make(
                 text=data,
@@ -1179,6 +1196,8 @@ class textpad(wx.Frame):
                 name=name,
                 title=name
                 )
+
+            # プログレスダイアログが消えても表示されるのに時間がかかる場合がある
         #-----------------------------------------------------------------------
         def read_table(path,ext):
 
@@ -1256,18 +1275,35 @@ class textpad(wx.Frame):
             # pprintでtxtファイルとして保存していたファイルの読み込みの場合
             if ext == ".txt":
                 encoding = check_encoding(path)
+                text = ""
+                read_size = 0
 
+                progress = wx.ProgressDialog("読み込み中", "しばらくお待ちください"
+                                             , maximum=os.path.getsize(path)
+                                             , parent=None
+                                             ,style=wx.PD_APP_MODAL|wx.PD_AUTO_HIDE|wx.STAY_ON_TOP
+                                             )
+                progress.Show()
                 # ファイルの読み込み
                 try:
                     with open(path,mode="r",encoding=encoding) as f:
-                        text = ast.literal_eval(f.read())
+                        for line in f:
+                            text += line
+                            read_size += len(line.encode(encoding))
+                            progress.Update(read_size)
                 except UnicodeDecodeError:
-                    with codecs.open(path,mode="r",encoding="utf-8",errors="backslashreplace") as f:
-                        text = ast.literal_eval(f.read())
                     encoding="utf-8"
+                    with codecs.open(path,mode="r",encoding="utf-8",errors="backslashreplace") as f:
+                        for line in f:
+                            text += line
+                            read_size += len(line.encode('utf-8'))
+                            progress.Update(read_size)
+                text = ast.literal_eval(text)
                     
                 # 要素数が一定になるように整形する
                 data,header = shape(text)
+
+                progress.Destroy() 
             #-------------------------------------------------------------------
             # pickleファイルの場合
             elif ext == ".pickle":
@@ -1282,54 +1318,6 @@ class textpad(wx.Frame):
             #-------------------------------------------------------------------
             # csvファイル・tsvファイルの場合
             elif ext in (".csv",".tsv"):
-                encoding = check_encoding(path)
-                data = []
-                elements_cnt = 0
-
-                # ファイルの読み込み
-                try:
-                    with open(path,mode="r",encoding=encoding) as f:
-                        table = f.readline()
-                except UnicodeDecodeError:
-                    with codecs.open(path,mode="r",encoding="utf-8",errors="backslashreplace") as f:
-                        table = f.readline()
-                        
-                for no,line in enumerate(table):
-                    # 改行だけの空白行をスキップ
-                    if len(line) == 1:
-                        continue
-                    # 区切り文字で要素を区切る
-                    if ext == ".csv":
-                        d = line.split(",")
-                    else:
-                        d = line.split("   ")
-                    # 要素数を取得
-                    if no == 0:
-                        elements_cnt = len(d)
-                    # 要素数が一定になるように整形する
-                    if len(d) > elements_cnt:
-                        data.append(d[:elements_cnt])
-                        d = d[elements_cnt:]
-                        if len(d) > elements_cnt:
-                            while len(d) > elements_cnt:
-                                data.append(d[:elements_cnt])
-                                d = d[elements_cnt:]
-                                if len(d) <= elements_cnt:
-                                    d = d + ['' for i in range(elements_cnt-len(d))]
-                                    data.append(d)
-                                    break
-                        elif len(d) < elements_cnt:
-                            d = d + ['' for i in range(elements_cnt-len(d))]
-                            data.append(d)
-                        else:
-                            data.append(d)
-                    elif len(d) < elements_cnt:
-                        d = d + ['' for i in range(elements_cnt-len(d))]
-                        data.append(d)
-                    else:
-                        data.append(d)
-                                
-                                
                 dialog = wx.MessageDialog(None, "ヘッダーはありますか？", caption="確認",style=wx.YES_NO)
                 res = dialog.ShowModal()
                 if res == wx.ID_YES:
@@ -1338,6 +1326,98 @@ class textpad(wx.Frame):
                     header = False
                 dialog.Destroy()
                 
+                encoding = check_encoding(path)
+                data = []
+                elements_cnt = 0
+                
+                read_size = 0
+
+                progress = wx.ProgressDialog("読み込み中", "しばらくお待ちください"
+                                             , maximum=os.path.getsize(path)
+                                             , parent=None
+                                             ,style=wx.PD_APP_MODAL|wx.PD_AUTO_HIDE|wx.STAY_ON_TOP
+                                             )
+                progress.Show()
+                # ファイルの読み込み
+                try:
+                    with open(path,mode="r",encoding=encoding) as f:
+                        for no,line in enumerate(f):
+                            # 改行だけの空白行をスキップ
+                            if len(line) == 1:
+                                continue
+                            # 区切り文字で要素を区切る
+                            if ext == ".csv":
+                                d = line.split(",")
+                            else:
+                                d = line.split("   ")
+                            # 要素数を取得
+                            if no == 0:
+                                elements_cnt = len(d)
+                            # 要素数が一定になるように整形する
+                            if len(d) > elements_cnt:
+                                data.append(d[:elements_cnt])
+                                d = d[elements_cnt:]
+                                if len(d) > elements_cnt:
+                                    while len(d) > elements_cnt:
+                                        data.append(d[:elements_cnt])
+                                        d = d[elements_cnt:]
+                                        if len(d) <= elements_cnt:
+                                            d = d + ['' for i in range(elements_cnt-len(d))]
+                                            data.append(d)
+                                            break
+                                elif len(d) < elements_cnt:
+                                    d = d + ['' for i in range(elements_cnt-len(d))]
+                                    data.append(d)
+                                else:
+                                    data.append(d)
+                            elif len(d) < elements_cnt:
+                                d = d + ['' for i in range(elements_cnt-len(d))]
+                                data.append(d)
+                            else:
+                                data.append(d)
+                            read_size += len(line.encode(encoding))
+                            progress.Update(read_size)
+                
+                except UnicodeDecodeError:
+                    encoding="utf-8"
+                    with codecs.open(path,mode="r",encoding="utf-8",errors="backslashreplace") as f:                        
+                        for no,line in enumerate(f.readline()):
+                            # 改行だけの空白行をスキップ
+                            if len(line) == 1:
+                                continue
+                            # 区切り文字で要素を区切る
+                            if ext == ".csv":
+                                d = line.split(",")
+                            else:
+                                d = line.split("   ")
+                            # 要素数を取得
+                            if no == 0:
+                                elements_cnt = len(d)
+                            # 要素数が一定になるように整形する
+                            if len(d) > elements_cnt:
+                                data.append(d[:elements_cnt])
+                                d = d[elements_cnt:]
+                                if len(d) > elements_cnt:
+                                    while len(d) > elements_cnt:
+                                        data.append(d[:elements_cnt])
+                                        d = d[elements_cnt:]
+                                        if len(d) <= elements_cnt:
+                                            d = d + ['' for i in range(elements_cnt-len(d))]
+                                            data.append(d)
+                                            break
+                                elif len(d) < elements_cnt:
+                                    d = d + ['' for i in range(elements_cnt-len(d))]
+                                    data.append(d)
+                                else:
+                                    data.append(d)
+                            elif len(d) < elements_cnt:
+                                d = d + ['' for i in range(elements_cnt-len(d))]
+                                data.append(d)
+                            else:
+                                data.append(d)
+                            read_size += len(line.encode(encoding))
+                            progress.Update(read_size)
+                progress.Destroy()                
             else:
                 return False
 
@@ -1474,8 +1554,9 @@ class textpad(wx.Frame):
             word = input_word("検索")
             if word:
                 page = wx.html2.WebView.New(self.notebook)
+                page.MSWSetEmulationLevel(wx.html2.WEBVIEWIE_EMU_IE11)
                 page.LoadURL(word)
-                sleep(10)
+                wx.Sleep(10)
                 
                 self.notebook.AddPage(
                     page,
@@ -1577,9 +1658,9 @@ class textpad(wx.Frame):
         # ザマギ / マジカルDEATH
         elif event.GetId() == 26:
             page = wx.html2.WebView.New(self.notebook)
-            #page.MSWSetEmulationLevel(wx.html2.WEBVIEWIE_EMU_IE11)
+            page.MSWSetEmulationLevel(wx.html2.WEBVIEWIE_EMU_IE11)
             page.LoadURL("https://www.youtube.com/watch?v=qYkicwSeXw0")
-            sleep(1)
+            wx.Sleep(10)
             self.notebook.AddPage(
                 page,
                 "マジカルDEATH",
@@ -1593,9 +1674,9 @@ class textpad(wx.Frame):
         # group_inou / THERAPY
         elif event.GetId() == 27:
             page = wx.html2.WebView.New(self.notebook)
-            #page.MSWSetEmulationLevel(wx.html2.WEBVIEWIE_EMU_IE11)
+            page.MSWSetEmulationLevel(wx.html2.WEBVIEWIE_EMU_IE11)
             page.LoadURL("https://www.youtube.com/watch?v=ACEBZ-KmuQo")
-            sleep(1)
+            wx.Sleep(10)
             self.notebook.AddPage(
                 page,
                 "group_inou / THERAPY",
@@ -1752,6 +1833,8 @@ class textpad(wx.Frame):
         menu_special.AppendSeparator()
         menu_special.Append(26, 'AC-bu1')
         menu_special.Append(27, 'AC-bu2')
+
+        #menu_special.SetToolTip(wx.ToolTip('This Is Click Tooltip'))
         
         self.menu_bar = FM.FlatMenuBar(self,wx.ID_ANY,options=FM.FM_OPT_IS_LCD)
         self.menu_bar.Append(menu_file, 'ファイル')
@@ -1764,6 +1847,12 @@ class textpad(wx.Frame):
         #import wx.lib.agw.balloontip as BT
         #tipballoon = BT.BalloonTip(topicon=None, toptitle="textctrl",message="this is a textctrl",shape=BT.BT_ROUNDED,tipstyle=BT.BT_LEAVE)
         #tipballoon.SetTarget(menu_special)
+        from wx.adv import RichToolTip
+        tip = RichToolTip("t","t")
+        tip.SetIcon(wx.ICON_INFORMATION)
+        tip.ShowFor(menu_special)
+        tip.SetTimeout(millisecondsTimeout=60, millisecondsDelay = 0)
+
 
         self.Bind(wx.EVT_MENU,self.selectMenu)
         self.Bind(FM.EVT_FLAT_MENU_ITEM_MOUSE_OVER,show_help)
