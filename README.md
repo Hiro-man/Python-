@@ -110,3 +110,6 @@ mp3やcsvといったファイルです．
 * <a href="https://python.civic-apps.com/file-io/" target="_blank">ファイル読み書き file open read write  | Python Snippets</a>
 * <a href="https://docs.python.org/ja/3/howto/unicode.html" target="_blank">Unicode HOWTO &#8212; Python 3.8.3 ドキュメント</a>
 * <a href="https://docs.python.org/ja/3/library/codecs.html" target="_blank">codecs --- codec レジストリと基底クラス &#8212; Python 3.8.3 ドキュメント</a>
+
+* <a href="https://www.lifewithpython.com/2017/12/python-tuple-list-difference.html" target="_blank">Python のタプルとリストの違い&#12289;タプルの使いどころ - Life with Python</a>
+* <a href="https://note.nkmk.me/python-tuple-operation/" target="_blank">Pythonでタプルの要素を追加・変更・削除 | note.nkmk.me</a>
