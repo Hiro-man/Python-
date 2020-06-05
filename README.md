@@ -2,11 +2,14 @@
 文字数制限（～文字以上・～文字以内）のある入力のために，Windouwsのメモ帳に常に文字数が表示されるものを使いたいと考え，
 PythonのGUIモジュールwxPythonを使用して作成したスクリプトです．
 
-exeファイルはスクリプトをpyinstallerでexe化したものです．
+## 実行環境
+基本的にはWindows10を想定したスクリプトおよびexeファイルになっています．
 WindowsやLinuxのWineであれば実行できると思います．
+
+exeファイルはスクリプトをpyinstallerでexe化したものです.
 exe化については以下のリンクを参照してください．
 <br><a href="https://qiita.com/y-tsutsu/items/f687cf4b57442557aade" target="_blank">PyInstallerがPython3.6をサポートしてくれた</a>
-                                                                      
+                  
 ## Windouwsのメモ帳との違い
 作成したスクリプトに関して，
 
@@ -22,7 +25,10 @@ exe化については以下のリンクを参照してください．
 * `wxPython`
 * `PyMuPDF`
 * `markdown`
-* `pickle`
+
+```
+pip install wxPython PyMuPDF markdown
+```
 
 使用したモジュールでPythonにデフォルトで入っているモジュールは以下に示します．
 
@@ -34,6 +40,11 @@ exe化については以下のリンクを参照してください．
 * `ast`
 * `codecs`
 * `platform`
+* `pickle`：<a href="https://docs.python.org/ja/3/library/pickle.html" target="_blank">3.8以降のPythonにはデフォルトで入っている模様</a>ですので，`pip`で入れる必要はありませんが，
+デフォルトで入っていない場合は`pip install pickle-mixin`で入れてください．
+逆に3.8以降のPythonで`pip install pickle-mixin`を実行するとエラーが発生します．
+    * <a href="https://www.lifewithpython.com/2013/05/pickle.html" target="_blank">ライブラリ&#65306;pickle - Life with Python</a>
+    * <a href="view-source:https://stackoverflow.com/questions/48477949/not-able-to-pip-install-pickle-in-python-3-6" target="_blank>Not able to pip install pickle in python 3.6 - Stack Overflow</a>
 
 ## 更新情報と現状の課題など
 ### 2020/05/03
