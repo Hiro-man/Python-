@@ -44,7 +44,7 @@ pip install wxPython PyMuPDF markdown
 デフォルトで入っていない場合は`pip install pickle-mixin`で入れてください．
 逆に3.8以降のPythonで`pip install pickle-mixin`を実行するとエラーが発生します．
     * <a href="https://www.lifewithpython.com/2013/05/pickle.html" target="_blank">ライブラリ&#65306;pickle - Life with Python</a>
-    * <a href="view-source:https://stackoverflow.com/questions/48477949/not-able-to-pip-install-pickle-in-python-3-6" target="_blank>Not able to pip install pickle in python 3.6 - Stack Overflow</a>
+    * <a href="view-source:https://stackoverflow.com/questions/48477949/not-able-to-pip-install-pickle-in-python-3-6" target="_blank">Not able to pip install pickle in python 3.6 - Stack Overflow</a>
 
 ## 更新情報と現状の課題など
 ### 2020/05/03
