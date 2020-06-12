@@ -4,11 +4,7 @@ PythonのGUIモジュールwxPythonを使用して作成したスクリプトで
 
 ## 実行環境
 基本的にはWindows10を想定したスクリプトおよびexeファイルになっています．
-WindowsやLinuxのWineであれば実行できると思います．
-
-exeファイルはスクリプトをpyinstallerでexe化したものです.
-exe化については以下のリンクを参照してください．
-<br><a href="https://qiita.com/y-tsutsu/items/f687cf4b57442557aade" target="_blank">PyInstallerがPython3.6をサポートしてくれた</a>
+exeファイルはWindowsやLinuxのWineであれば実行できると思います．
                   
 ## Windouwsのメモ帳との違い
 作成したスクリプトに関して，
@@ -16,6 +12,10 @@ exe化については以下のリンクを参照してください．
 * 文字数が表示されるため（常に更新されます），文字数制限のある入力の下書きに便利
 * タブ表示でき，一つのウィンドウで複数のファイルを切り替えて表示
 * テキストファイル以外にも対応でき，マークダウン表記にも対応できます
+* テキストファイル以外のファイルにも対応した多機能さ
+    * csvやtsvをGUIで操作できます
+    * バックでmp3やmp4を再生しながらテキストを編集できます
+    * PDFの表示も可能です
 
 といった特徴があります．
 
@@ -99,6 +99,8 @@ mp3やcsvといったファイルです．
     * <a href="https://wxpython.org/Phoenix/docs/html/wx.TextCtrl.html" target="_blank">wx.TextCtrl — wxPython Phoenix 4.1.1a1 documentation</a>
     * <a href="https://wxpython.org/Phoenix/docs/html/wx.functions.html#wx.Sleep" target="_blank">https://wxpython.org/Phoenix/docs/html/wx.functions.html#wx.Sleep</a>
     * <a href="https://wxpython.org/Phoenix/docs/html/wx.lib.agw.flatmenu.html#module-wx.lib.agw.flatmenu" target="_blank">wx.lib.agw.flatmenu — wxPython Phoenix 4.1.1a1 documentation</a>
+    * <a href="https://wxpython.org/Phoenix/docs/html/wx.grid.Grid.html" target="_blank">wx.grid.Grid — wxPython Phoenix 4.1.1a1 documentation</a>
+    * <a href="https://wxpython.org/Phoenix/docs/html/wx.grid.GridTableBase.html" target="_blank">wx.grid.GridTableBase — wxPython Phoenix 4.1.1a1 documentation</a>
 * <a href="https://wiki.wxpython.org/Printing%20framework%20%28Phoenix%29" target="_blank">Printing framework (Phoenix) - wxPyWiki</a> 
 * <a href="https://www.python-izm.com/gui/" target="_blank">GUI  |  Python-izm</a>
 * <a href="https://www.it-swarm.dev/ja/python/pythonから標準プリンターに印刷しますか%EF%BC%9F/1068950658/" target="_blank">python — Pythonから標準プリンターに印刷しますか？</a> 
@@ -111,6 +113,9 @@ mp3やcsvといったファイルです．
 * <a href="https://python-minutes.blogspot.com/2016/11/pythongui-notebook.html" target="_blank">python入門ブログ: pythonでGUIツールを作る&#12288;&#65374; Notebook&#12288;ノートブック &#65374;</a>
 * <a href="https://torina.top/detail/205/" target="_blank">wxPythonで、タブ（Notebook） - naritoブログ</a>
 * <a href="https://ja.coder.work/so/python/561309" target="_blank">python - wxPython TextCtrlウィジェットのフォントを変更する - ITツールウェブ</a>
+* <a href="http://wxpython-users.1045709.n5.nabble.com/wxGrid-reload-table-td2311585.html" target="_blank">wxPython-users - wxGrid reload table</a>
+* <a href="https://ideal-user-interface.hatenablog.com/entry/20101118/1290058840" target="_blank">グリッドテーブル - 理想のユーザ・インターフェイスを求めて</a>
+* <a href="https://maku77.github.io/python/wxpython/grid.html" target="_blank">wxPython - Grid（グリッド） | まくまくPythonノート</a>
 
 * <a href="https://tatzyr.hatenablog.com/entry/2017/01/27/153800" target="_blank">Pythonで大きいファイルを読み込む時にプログレスバーを表示 - ぼろぼろ平原</a>
 * <a href="https://qiita.com/everycamel/items/da9651db9d4807cb144d" target="_blank">wx.ProgressDialog の AUTO_HIDE では明示的な Destroy() が必要 - Qiita</a>
@@ -136,5 +141,8 @@ mp3やcsvといったファイルです．
 
 * <a href="https://www.lifewithpython.com/2017/12/python-tuple-list-difference.html" target="_blank">Python のタプルとリストの違い&#12289;タプルの使いどころ - Life with Python</a>
 * <a href="https://note.nkmk.me/python-tuple-operation/" target="_blank">Pythonでタプルの要素を追加・変更・削除 | note.nkmk.me</a>
+* <a href="https://www.javadrive.jp/python/dictionary/index6.html" target="_blank">辞書から要素を削除する | Python入門</a>
 
 * <a href="http://blog.livedoor.jp/pythonsuezo/archives/10165277.html" target="_blank">wxpythonの使い方 wxFrame編 : 初心者のpython備忘録</a>
+
+* <a href="https://www.haya-programming.com/entry/2018/11/30/230228" target="_blank">【python】実行スクリプトからの相対パスでファイルを開く - 静かなる名辞</a>
